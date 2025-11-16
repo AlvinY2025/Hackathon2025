@@ -1,0 +1,419 @@
+nub
+nubmelon
+Invisible
+
+over
+ added 
+nub
+ to the group. — 6:03 PM
+goop — 6:03 PM
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hackathon Fitness Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        /* Custom scrollbar for better appearance */
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen p-4 sm:p-8">
+
+    <div class="max-w-5xl mx-auto bg-white shadow-2xl rounded-2xl p-6 sm:p-10">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-extrabold text-green-600">Daily Health Logger</h1>
+            <p class="mt-2 text-gray-500">Track your progress! Log your macros and workout details below.</p>
+        </header>
+
+        <!-- User/Auth Status -->
+        <div id="auth-status" class="text-center p-3 mb-6 bg-gray-100 rounded-xl text-sm font-mono break-all">
+            Loading authentication status...
+        </div>
+
+        <!-- Logging Form -->
+        <section class="bg-green-50 p-6 rounded-xl shadow-inner mb-8">
+            <h2 class="text-2xl font-semibold text-green-700 mb-4">Log Today's Data</h2>
+            <form id="log-form" class="space-y-4">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <!-- Date Input (Automatically set to today) -->
+                    <div class="col-span-2 md:col-span-1">
+                        <label for="log-date" class="block text-sm font-medium text-gray-700">Date</label>
+                        <input type="date" id="log-date" required class="w-full p-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 shadow-sm">
+                    </div>
+                    <!-- Calories -->
+                    <div>
+                        <label for="calories" class="block text-sm font-medium text-gray-700">Calories Consumed</label>
+                        <input type="number" id="calories" placeholder="e.g., 2000" min="0" required class="w-full p-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 shadow-sm">
+                    </div>
+                    <!-- Protein -->
+                    <div>
+                        <label for="protein" class="block text-sm font-medium text-gray-700">Protein (grams)</label>
+                        <input type="number" id="protein" placeholder="e.g., 150" min="0" required class="w-full p-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 shadow-sm">
+                    </div>
+                    <!-- Water -->
+                    <div>
+                        <label for="water" class="block text-sm font-medium text-gray-700">Water (liters)</label>
+                        <input type="number" id="water" placeholder="e.g., 3" min="0" step="0.1" required class="w-full p-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 shadow-sm">
+                    </div>
+                </div>
+
+                <!-- Workout Log -->
+                <div>
+                    <label for="workout" class="block text-sm font-medium text-gray-700">Workout Summary</label>
+                    <textarea id="workout" rows="3" placeholder="e.g., Leg Day: Squats 3x10, Deadlifts 3x5, 30 min cardio." required class="w-full p-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 shadow-sm"></textarea>
+                </div>
+
+                <button type="submit" id="submit-button" class="w-full py-3 px-6 border border-transparent rounded-xl shadow-md text-base font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-150 ease-in-out disabled:opacity-50">
+                    Save Daily Progress
+                </button>
+            </form>
+            <div id="form-message" class="mt-4 p-2 text-sm rounded-lg hidden"></div>
+        </section>
+
+        <!-- Log Display Section -->
+        <section>
+            <h2 class="text-2xl font-semibold text-gray-700 mb-4">Past Logs (Real-time)</h2>
+            <div class="max-h-96 overflow-y-auto custom-scrollbar p-2 bg-gray-50 rounded-xl border border-gray-200">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-100 sticky top-0">
+                        <tr>
+                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">Date</th>
+                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">User</th>
+                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">Cals</th>
+                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">Prot (g)</th>
+                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">Water (L)</th>
+                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-7/12">Workout Summary</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logs-table-body" class="bg-white divide-y divide-gray-200">
+                        <!-- Logs will be loaded here -->
+                        <tr><td colspan="6" class="p-4 text-center text-gray-400">Loading daily logs...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, setPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, addDoc, onSnapshot, collection, query, orderBy, serverTimestamp, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Firebase Globals (Mandatory use in the Canvas environment)
+... (199 lines left)
+Collapse
+message.txt
+16 KB
+over
+ changed the group name: Hackathon Moggers. Edit Group — 6:04 PM
+over
+ changed the group icon. Edit Group — 6:04 PM
+﻿
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hackathon Fitness Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        /* Custom scrollbar for better appearance */
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen p-4 sm:p-8">
+
+    <div class="max-w-5xl mx-auto bg-white shadow-2xl rounded-2xl p-6 sm:p-10">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-extrabold text-green-600">Daily Health Logger</h1>
+            <p class="mt-2 text-gray-500">Track your progress! Log your macros and workout details below.</p>
+        </header>
+
+        <!-- User/Auth Status -->
+        <div id="auth-status" class="text-center p-3 mb-6 bg-gray-100 rounded-xl text-sm font-mono break-all">
+            Loading authentication status...
+        </div>
+
+        <!-- Logging Form -->
+        <section class="bg-green-50 p-6 rounded-xl shadow-inner mb-8">
+            <h2 class="text-2xl font-semibold text-green-700 mb-4">Log Today's Data</h2>
+            <form id="log-form" class="space-y-4">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <!-- Date Input (Automatically set to today) -->
+                    <div class="col-span-2 md:col-span-1">
+                        <label for="log-date" class="block text-sm font-medium text-gray-700">Date</label>
+                        <input type="date" id="log-date" required class="w-full p-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 shadow-sm">
+                    </div>
+                    <!-- Calories -->
+                    <div>
+                        <label for="calories" class="block text-sm font-medium text-gray-700">Calories Consumed</label>
+                        <input type="number" id="calories" placeholder="e.g., 2000" min="0" required class="w-full p-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 shadow-sm">
+                    </div>
+                    <!-- Protein -->
+                    <div>
+                        <label for="protein" class="block text-sm font-medium text-gray-700">Protein (grams)</label>
+                        <input type="number" id="protein" placeholder="e.g., 150" min="0" required class="w-full p-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 shadow-sm">
+                    </div>
+                    <!-- Water -->
+                    <div>
+                        <label for="water" class="block text-sm font-medium text-gray-700">Water (liters)</label>
+                        <input type="number" id="water" placeholder="e.g., 3" min="0" step="0.1" required class="w-full p-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 shadow-sm">
+                    </div>
+                </div>
+
+                <!-- Workout Log -->
+                <div>
+                    <label for="workout" class="block text-sm font-medium text-gray-700">Workout Summary</label>
+                    <textarea id="workout" rows="3" placeholder="e.g., Leg Day: Squats 3x10, Deadlifts 3x5, 30 min cardio." required class="w-full p-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 shadow-sm"></textarea>
+                </div>
+
+                <button type="submit" id="submit-button" class="w-full py-3 px-6 border border-transparent rounded-xl shadow-md text-base font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-150 ease-in-out disabled:opacity-50">
+                    Save Daily Progress
+                </button>
+            </form>
+            <div id="form-message" class="mt-4 p-2 text-sm rounded-lg hidden"></div>
+        </section>
+
+        <!-- Log Display Section -->
+        <section>
+            <h2 class="text-2xl font-semibold text-gray-700 mb-4">Past Logs (Real-time)</h2>
+            <div class="max-h-96 overflow-y-auto custom-scrollbar p-2 bg-gray-50 rounded-xl border border-gray-200">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-100 sticky top-0">
+                        <tr>
+                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">Date</th>
+                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">User</th>
+                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">Cals</th>
+                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">Prot (g)</th>
+                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">Water (L)</th>
+                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-7/12">Workout Summary</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logs-table-body" class="bg-white divide-y divide-gray-200">
+                        <!-- Logs will be loaded here -->
+                        <tr><td colspan="6" class="p-4 text-center text-gray-400">Loading daily logs...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, setPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, addDoc, onSnapshot, collection, query, orderBy, serverTimestamp, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Firebase Globals (Mandatory use in the Canvas environment)
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        let db = null;
+        let auth = null;
+        let currentUserId = null;
+        let isAuthReady = false;
+
+        // DOM Elements
+        const logForm = document.getElementById('log-form');
+        const submitButton = document.getElementById('submit-button');
+        const logsTableBody = document.getElementById('logs-table-body');
+        const authStatus = document.getElementById('auth-status');
+        const formMessage = document.getElementById('form-message');
+        const logDateInput = document.getElementById('log-date');
+
+        // Set date input to today
+        logDateInput.valueAsDate = new Date();
+
+        // 1. Firebase Initialization and Authentication Setup
+        async function initializeFirebase() {
+            setLogLevel('debug');
+            
+            if (!firebaseConfig) {
+                authStatus.textContent = 'ERROR: Firebase config is missing.';
+                authStatus.className = 'text-center p-3 mb-6 bg-red-100 rounded-xl text-sm font-mono break-all text-red-700';
+                return;
+            }
+
+            try {
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                
+                // Use session persistence for a smooth hackathon experience
+                await setPersistence(auth, browserSessionPersistence);
+
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        currentUserId = user.uid;
+                        isAuthReady = true;
+                        authStatus.innerHTML = `Authenticated User ID: <span class="font-bold text-green-700">${currentUserId}</span><br>Status: Ready to log data to public collection.`;
+                        // Start listening for logs only after successful auth
+                        setupRealtimeLogs();
+                    } else {
+                        currentUserId = null;
+                        isAuthReady = true;
+                        authStatus.textContent = 'Status: Not authenticated. Using Anonymous ID.';
+                        setupRealtimeLogs(); // Still try to load data, but it might fail based on security rules
+                    }
+                });
+
+            } catch (error) {
+                console.error("Firebase initialization or authentication failed:", error);
+                authStatus.textContent = `ERROR: Auth failed. Check console. Details: ${error.message}`;
+                authStatus.className = 'text-center p-3 mb-6 bg-red-100 rounded-xl text-sm font-mono break-all text-red-700';
+            }
+        }
+
+        // 2. Data Persistence (Save)
+        async function saveLog(event) {
+            event.preventDefault();
+            
+            if (!isAuthReady || !db) {
+                showMessage("Authentication not ready. Please wait.", 'red');
+                return;
+            }
+
+            submitButton.disabled = true;
+            submitButton.textContent = 'Saving...';
+            
+            const logId = currentUserId || crypto.randomUUID(); // Fallback ID if auth is still pending/failed
+
+            try {
+                const logData = {
+                    userId: logId,
+                    date: document.getElementById('log-date').value,
+                    calories: parseInt(document.getElementById('calories').value),
+                    protein: parseInt(document.getElementById('protein').value),
+                    water: parseFloat(document.getElementById('water').value),
+                    workout: document.getElementById('workout').value,
+                    timestamp: serverTimestamp()
+                };
+
+                // Public collection path for sharing in a hackathon environment
+                const logsCollectionRef = collection(db, 'artifacts', appId, 'public', 'data', 'dailyLogs');
+                
+                await addDoc(logsCollectionRef, logData);
+
+                logForm.reset();
+                logDateInput.valueAsDate = new Date(); // Reset date after successful submission
+                showMessage("Progress saved successfully!", 'green');
+
+            } catch (error) {
+                console.error("Error saving document: ", error);
+                showMessage(`Error saving: ${error.message}`, 'red');
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Save Daily Progress';
+            }
+        }
+
+        // 3. Real-time Data Retrieval (Load)
+        function setupRealtimeLogs() {
+            if (!isAuthReady || !db) {
+                // Wait for initialization
+                return; 
+            }
+
+            const logsCollectionRef = collection(db, 'artifacts', appId, 'public', 'data', 'dailyLogs');
+            
+            // Order by timestamp to get the latest logs first (no orderBy in q for simplicity)
+            const q = query(logsCollectionRef);
+
+            // Set up real-time listener
+            onSnapshot(q, (snapshot) => {
+                const logs = [];
+                snapshot.forEach((doc) => {
+                    // Convert serverTimestamp to an easily readable string if available
+                    const data = doc.data();
+                    let dateStr = data.date || 'N/A';
+                    
+                    logs.push({ 
+                        id: doc.id, 
+                        ...data, 
+                        displayDate: dateStr
+                    });
+                });
+
+                // Sort logs by date descending (client-side sorting for simplicity)
+                logs.sort((a, b) => new Date(b.displayDate) - new Date(a.displayDate));
+
+                renderLogs(logs);
+
+            }, (error) => {
+                console.error("Error fetching real-time logs: ", error);
+                logsTableBody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-red-500">Error loading logs: ${error.message}</td></tr>`;
+            });
+        }
+
+        // 4. Rendering Function
+        function renderLogs(logs) {
+            logsTableBody.innerHTML = '';
+            if (logs.length === 0) {
+                logsTableBody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-gray-400">No logs saved yet. Be the first!</td></tr>';
+                return;
+            }
+
+            logs.forEach(log => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-green-50 transition duration-150';
+                
+                // Show a shortened, unique user ID for the public collection
+                const shortUserId = log.userId ? log.userId.substring(0, 4) : 'Anon';
+
+                row.innerHTML = `
+                    <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">${log.displayDate}</td>
+                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500 font-mono">${shortUserId}</td>
+                    <td class="px-3 py-2 whitespace-nowrap text-sm font-bold text-gray-900">${log.calories}</td>
+                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-700">${log.protein}</td>
+                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-700">${log.water}</td>
+                    <td class="px-3 py-2 text-sm text-gray-600 max-w-xs overflow-hidden text-ellipsis">${log.workout}</td>
+                `;
+                logsTableBody.appendChild(row);
+            });
+        }
+
+        // Utility: Display temporary form messages
+        function showMessage(text, type) {
+            formMessage.textContent = text;
+            formMessage.classList.remove('hidden', 'bg-red-100', 'bg-green-100', 'text-red-700', 'text-green-700');
+            
+            if (type === 'green') {
+                formMessage.classList.add('bg-green-100', 'text-green-700');
+            } else {
+                formMessage.classList.add('bg-red-100', 'text-red-700');
+            }
+
+            setTimeout(() => {
+                formMessage.classList.add('hidden');
+            }, 5000);
+        }
+
+        // Event Listeners
+        logForm.addEventListener('submit', saveLog);
+
+        // Start the application
+        initializeFirebase();
+
+    </script>
+</body>
+</html>
+message.txt
+16 KB
