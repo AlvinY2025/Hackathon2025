@@ -1,258 +1,66 @@
-nub
-nubmelon
-Invisible
-
-over
- added 
-nub
- to the group. — 6:03 PM
-goop — 6:03 PM
-<!DOCTYPE html>
+!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hackathon Fitness Tracker</title>
+    <title>GymGenie: AI Workout Planner</title>
+    <!-- Load Tailwind CSS CDN for utility classes -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-        /* Custom scrollbar for better appearance */
-        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-    </style>
-</head>
-<body class="bg-gray-50 min-h-screen p-4 sm:p-8">
-
-    <div class="max-w-5xl mx-auto bg-white shadow-2xl rounded-2xl p-6 sm:p-10">
-        <header class="text-center mb-8">
-            <h1 class="text-4xl font-extrabold text-green-600">Daily Health Logger</h1>
-            <p class="mt-2 text-gray-500">Track your progress! Log your macros and workout details below.</p>
-        </header>
-
-        <!-- User/Auth Status -->
-        <div id="auth-status" class="text-center p-3 mb-6 bg-gray-100 rounded-xl text-sm font-mono break-all">
-            Loading authentication status...
-        </div>
-
-        <!-- Logging Form -->
-        <section class="bg-green-50 p-6 rounded-xl shadow-inner mb-8">
-            <h2 class="text-2xl font-semibold text-green-700 mb-4">Log Today's Data</h2>
-            <form id="log-form" class="space-y-4">
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <!-- Date Input (Automatically set to today) -->
-                    <div class="col-span-2 md:col-span-1">
-                        <label for="log-date" class="block text-sm font-medium text-gray-700">Date</label>
-                        <input type="date" id="log-date" required class="w-full p-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 shadow-sm">
-                    </div>
-                    <!-- Calories -->
-                    <div>
-                        <label for="calories" class="block text-sm font-medium text-gray-700">Calories Consumed</label>
-                        <input type="number" id="calories" placeholder="e.g., 2000" min="0" required class="w-full p-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 shadow-sm">
-                    </div>
-                    <!-- Protein -->
-                    <div>
-                        <label for="protein" class="block text-sm font-medium text-gray-700">Protein (grams)</label>
-                        <input type="number" id="protein" placeholder="e.g., 150" min="0" required class="w-full p-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 shadow-sm">
-                    </div>
-                    <!-- Water -->
-                    <div>
-                        <label for="water" class="block text-sm font-medium text-gray-700">Water (liters)</label>
-                        <input type="number" id="water" placeholder="e.g., 3" min="0" step="0.1" required class="w-full p-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 shadow-sm">
-                    </div>
-                </div>
-
-                <!-- Workout Log -->
-                <div>
-                    <label for="workout" class="block text-sm font-medium text-gray-700">Workout Summary</label>
-                    <textarea id="workout" rows="3" placeholder="e.g., Leg Day: Squats 3x10, Deadlifts 3x5, 30 min cardio." required class="w-full p-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 shadow-sm"></textarea>
-                </div>
-
-                <button type="submit" id="submit-button" class="w-full py-3 px-6 border border-transparent rounded-xl shadow-md text-base font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-150 ease-in-out disabled:opacity-50">
-                    Save Daily Progress
-                </button>
-            </form>
-            <div id="form-message" class="mt-4 p-2 text-sm rounded-lg hidden"></div>
-        </section>
-
-        <!-- Log Display Section -->
-        <section>
-            <h2 class="text-2xl font-semibold text-gray-700 mb-4">Past Logs (Real-time)</h2>
-            <div class="max-h-96 overflow-y-auto custom-scrollbar p-2 bg-gray-50 rounded-xl border border-gray-200">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-100 sticky top-0">
-                        <tr>
-                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">Date</th>
-                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">User</th>
-                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">Cals</th>
-                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">Prot (g)</th>
-                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">Water (L)</th>
-                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-7/12">Workout Summary</th>
-                        </tr>
-                    </thead>
-                    <tbody id="logs-table-body" class="bg-white divide-y divide-gray-200">
-                        <!-- Logs will be loaded here -->
-                        <tr><td colspan="6" class="p-4 text-center text-gray-400">Loading daily logs...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-    </div>
-
+    <!-- Load Firebase SDKs -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, setPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, addDoc, onSnapshot, collection, query, orderBy, serverTimestamp, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, onSnapshot, setDoc, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Firebase Globals (Mandatory use in the Canvas environment)
-... (199 lines left)
-Collapse
-message.txt
-16 KB
-over
- changed the group name: Hackathon Moggers. Edit Group — 6:04 PM
-over
- changed the group icon. Edit Group — 6:04 PM
-﻿
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hackathon Fitness Tracker</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-        /* Custom scrollbar for better appearance */
-        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-    </style>
-</head>
-<body class="bg-gray-50 min-h-screen p-4 sm:p-8">
+        // IMPORTANT: Set debug level for better console logging during development
+        setLogLevel('Debug');
 
-    <div class="max-w-5xl mx-auto bg-white shadow-2xl rounded-2xl p-6 sm:p-10">
-        <header class="text-center mb-8">
-            <h1 class="text-4xl font-extrabold text-green-600">Daily Health Logger</h1>
-            <p class="mt-2 text-gray-500">Track your progress! Log your macros and workout details below.</p>
-        </header>
-
-        <!-- User/Auth Status -->
-        <div id="auth-status" class="text-center p-3 mb-6 bg-gray-100 rounded-xl text-sm font-mono break-all">
-            Loading authentication status...
-        </div>
-
-        <!-- Logging Form -->
-        <section class="bg-green-50 p-6 rounded-xl shadow-inner mb-8">
-            <h2 class="text-2xl font-semibold text-green-700 mb-4">Log Today's Data</h2>
-            <form id="log-form" class="space-y-4">
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <!-- Date Input (Automatically set to today) -->
-                    <div class="col-span-2 md:col-span-1">
-                        <label for="log-date" class="block text-sm font-medium text-gray-700">Date</label>
-                        <input type="date" id="log-date" required class="w-full p-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 shadow-sm">
-                    </div>
-                    <!-- Calories -->
-                    <div>
-                        <label for="calories" class="block text-sm font-medium text-gray-700">Calories Consumed</label>
-                        <input type="number" id="calories" placeholder="e.g., 2000" min="0" required class="w-full p-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 shadow-sm">
-                    </div>
-                    <!-- Protein -->
-                    <div>
-                        <label for="protein" class="block text-sm font-medium text-gray-700">Protein (grams)</label>
-                        <input type="number" id="protein" placeholder="e.g., 150" min="0" required class="w-full p-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 shadow-sm">
-                    </div>
-                    <!-- Water -->
-                    <div>
-                        <label for="water" class="block text-sm font-medium text-gray-700">Water (liters)</label>
-                        <input type="number" id="water" placeholder="e.g., 3" min="0" step="0.1" required class="w-full p-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 shadow-sm">
-                    </div>
-                </div>
-
-                <!-- Workout Log -->
-                <div>
-                    <label for="workout" class="block text-sm font-medium text-gray-700">Workout Summary</label>
-                    <textarea id="workout" rows="3" placeholder="e.g., Leg Day: Squats 3x10, Deadlifts 3x5, 30 min cardio." required class="w-full p-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 shadow-sm"></textarea>
-                </div>
-
-                <button type="submit" id="submit-button" class="w-full py-3 px-6 border border-transparent rounded-xl shadow-md text-base font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-150 ease-in-out disabled:opacity-50">
-                    Save Daily Progress
-                </button>
-            </form>
-            <div id="form-message" class="mt-4 p-2 text-sm rounded-lg hidden"></div>
-        </section>
-
-        <!-- Log Display Section -->
-        <section>
-            <h2 class="text-2xl font-semibold text-gray-700 mb-4">Past Logs (Real-time)</h2>
-            <div class="max-h-96 overflow-y-auto custom-scrollbar p-2 bg-gray-50 rounded-xl border border-gray-200">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-100 sticky top-0">
-                        <tr>
-                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">Date</th>
-                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">User</th>
-                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">Cals</th>
-                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">Prot (g)</th>
-                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">Water (L)</th>
-                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-7/12">Workout Summary</th>
-                        </tr>
-                    </thead>
-                    <tbody id="logs-table-body" class="bg-white divide-y divide-gray-200">
-                        <!-- Logs will be loaded here -->
-                        <tr><td colspan="6" class="p-4 text-center text-gray-400">Loading daily logs...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-    </div>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, setPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, addDoc, onSnapshot, collection, query, orderBy, serverTimestamp, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // Firebase Globals (Mandatory use in the Canvas environment)
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+        // Global variables provided by the Canvas environment
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'gymgenie-app';
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        const apiKey = ""; // API key for Gemini API
 
-        let db = null;
-        let auth = null;
-        let currentUserId = null;
+        let db;
+        let auth;
+        let userId = null;
         let isAuthReady = false;
 
-        // DOM Elements
-        const logForm = document.getElementById('log-form');
-        const submitButton = document.getElementById('submit-button');
-        const logsTableBody = document.getElementById('logs-table-body');
-        const authStatus = document.getElementById('auth-status');
-        const formMessage = document.getElementById('form-message');
-        const logDateInput = document.getElementById('log-date');
+        // Reactive state variables
+        let currentPlan = { content: null, timestamp: null };
+        let currentPage = 'dashboard';
+        let isGenerating = false;
 
-        // Set date input to today
-        logDateInput.valueAsDate = new Date();
+        // --- Core Firebase Functions ---
 
-        // 1. Firebase Initialization and Authentication Setup
-        async function initializeFirebase() {
-            setLogLevel('debug');
-            
-            if (!firebaseConfig) {
-                authStatus.textContent = 'ERROR: Firebase config is missing.';
-                authStatus.className = 'text-center p-3 mb-6 bg-red-100 rounded-xl text-sm font-mono break-all text-red-700';
-                return;
-            }
+        // Helper to get the Document Reference for the user's single plan file (6 segments: C/D/C/D/C/D)
+        function getCurrentPlanDocRef() {
+            if (!db || !userId) return null;
+            // Valid Document Path for private data: artifacts/{appId}/users/{userId}/plan_data/current_plan_doc
+            return doc(db, `artifacts/${appId}/users/${userId}/plan_data/current_plan_doc`);
+        }
 
+        async function setupFirebase() {
             try {
                 const app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 auth = getAuth(app);
-                
-                // Use session persistence for a smooth hackathon experience
-                await setPersistence(auth, browserSessionPersistence);
+
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        isAuthReady = true;
+                        console.log('User signed in. UID:', userId);
+                        document.getElementById('user-id-display').textContent = `User ID: ${userId}`;
+                        setupRealtimeListeners();
+                    } else {
+                        userId = null;
+                        isAuthReady = true;
+                        console.log('User signed out/anonymous.');
+                        document.getElementById('user-id-display').textContent = `User ID: Not Signed In`;
+                        renderApp();
+                    }
+                });
 
                 if (initialAuthToken) {
                     await signInWithCustomToken(auth, initialAuthToken);
@@ -260,160 +68,374 @@ over
                     await signInAnonymously(auth);
                 }
 
-                onAuthStateChanged(auth, (user) => {
-                    if (user) {
-                        currentUserId = user.uid;
-                        isAuthReady = true;
-                        authStatus.innerHTML = `Authenticated User ID: <span class="font-bold text-green-700">${currentUserId}</span><br>Status: Ready to log data to public collection.`;
-                        // Start listening for logs only after successful auth
-                        setupRealtimeLogs();
-                    } else {
-                        currentUserId = null;
-                        isAuthReady = true;
-                        authStatus.textContent = 'Status: Not authenticated. Using Anonymous ID.';
-                        setupRealtimeLogs(); // Still try to load data, but it might fail based on security rules
+            } catch (error) {
+                console.error("Firebase setup failed:", error);
+                document.getElementById('app-container').innerHTML = renderError('Firebase setup failed. Check console for details.');
+            }
+        }
+
+        function setupRealtimeListeners() {
+            const planDocRef = getCurrentPlanDocRef();
+            if (!planDocRef) return;
+
+            // Listen for the user's current plan document
+            onSnapshot(planDocRef, (doc) => {
+                if (doc.exists()) {
+                    currentPlan = { id: doc.id, ...doc.data() };
+                    // Ensure content is not null if the document exists
+                    if (!currentPlan.content) {
+                        currentPlan.content = "No plan content found. Generate a new plan!";
                     }
-                });
-
-            } catch (error) {
-                console.error("Firebase initialization or authentication failed:", error);
-                authStatus.textContent = `ERROR: Auth failed. Check console. Details: ${error.message}`;
-                authStatus.className = 'text-center p-3 mb-6 bg-red-100 rounded-xl text-sm font-mono break-all text-red-700';
-            }
-        }
-
-        // 2. Data Persistence (Save)
-        async function saveLog(event) {
-            event.preventDefault();
-            
-            if (!isAuthReady || !db) {
-                showMessage("Authentication not ready. Please wait.", 'red');
-                return;
-            }
-
-            submitButton.disabled = true;
-            submitButton.textContent = 'Saving...';
-            
-            const logId = currentUserId || crypto.randomUUID(); // Fallback ID if auth is still pending/failed
-
-            try {
-                const logData = {
-                    userId: logId,
-                    date: document.getElementById('log-date').value,
-                    calories: parseInt(document.getElementById('calories').value),
-                    protein: parseInt(document.getElementById('protein').value),
-                    water: parseFloat(document.getElementById('water').value),
-                    workout: document.getElementById('workout').value,
-                    timestamp: serverTimestamp()
-                };
-
-                // Public collection path for sharing in a hackathon environment
-                const logsCollectionRef = collection(db, 'artifacts', appId, 'public', 'data', 'dailyLogs');
-                
-                await addDoc(logsCollectionRef, logData);
-
-                logForm.reset();
-                logDateInput.valueAsDate = new Date(); // Reset date after successful submission
-                showMessage("Progress saved successfully!", 'green');
-
-            } catch (error) {
-                console.error("Error saving document: ", error);
-                showMessage(`Error saving: ${error.message}`, 'red');
-            } finally {
-                submitButton.disabled = false;
-                submitButton.textContent = 'Save Daily Progress';
-            }
-        }
-
-        // 3. Real-time Data Retrieval (Load)
-        function setupRealtimeLogs() {
-            if (!isAuthReady || !db) {
-                // Wait for initialization
-                return; 
-            }
-
-            const logsCollectionRef = collection(db, 'artifacts', appId, 'public', 'data', 'dailyLogs');
-            
-            // Order by timestamp to get the latest logs first (no orderBy in q for simplicity)
-            const q = query(logsCollectionRef);
-
-            // Set up real-time listener
-            onSnapshot(q, (snapshot) => {
-                const logs = [];
-                snapshot.forEach((doc) => {
-                    // Convert serverTimestamp to an easily readable string if available
-                    const data = doc.data();
-                    let dateStr = data.date || 'N/A';
-                    
-                    logs.push({ 
-                        id: doc.id, 
-                        ...data, 
-                        displayDate: dateStr
-                    });
-                });
-
-                // Sort logs by date descending (client-side sorting for simplicity)
-                logs.sort((a, b) => new Date(b.displayDate) - new Date(a.displayDate));
-
-                renderLogs(logs);
-
+                } else {
+                    currentPlan = { content: "Welcome! Generate your first custom workout plan.", timestamp: null };
+                }
+                console.log('Current plan updated:', currentPlan);
+                renderApp();
             }, (error) => {
-                console.error("Error fetching real-time logs: ", error);
-                logsTableBody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-red-500">Error loading logs: ${error.message}</td></tr>`;
+                console.error("Error fetching current plan:", error);
+                alertModal("Failed to load plan data.", true);
             });
         }
 
-        // 4. Rendering Function
-        function renderLogs(logs) {
-            logsTableBody.innerHTML = '';
-            if (logs.length === 0) {
-                logsTableBody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-gray-400">No logs saved yet. Be the first!</td></tr>';
+        async function savePlan(planContent) {
+            if (!db || !userId) {
+                alertModal("Authentication failed. Cannot save plan.", true);
+                return;
+            }
+            try {
+                const planDocRef = getCurrentPlanDocRef();
+                await setDoc(planDocRef, {
+                    content: planContent,
+                    timestamp: new Date().toISOString()
+                }, { merge: true });
+                alertModal("New plan saved successfully!");
+            } catch (e) {
+                console.error("Error saving plan: ", e);
+                alertModal("Failed to save plan.", true);
+            }
+        }
+
+
+        // --- Gemini API Function ---
+
+        async function generateWorkoutPlan(event) {
+            event.preventDefault();
+            if (isGenerating) return;
+
+            const form = event.target;
+            const goal = form.goal.value.trim();
+            const duration = form.duration.value.trim();
+            const frequency = form.frequency.value.trim();
+            const experience = form.experience.value;
+
+            if (!goal || !duration || !frequency || !experience) {
+                alertModal("Please fill out all plan details.", true);
                 return;
             }
 
-            logs.forEach(log => {
-                const row = document.createElement('tr');
-                row.className = 'hover:bg-green-50 transition duration-150';
-                
-                // Show a shortened, unique user ID for the public collection
-                const shortUserId = log.userId ? log.userId.substring(0, 4) : 'Anon';
+            isGenerating = true;
+            renderApp();
 
-                row.innerHTML = `
-                    <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">${log.displayDate}</td>
-                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500 font-mono">${shortUserId}</td>
-                    <td class="px-3 py-2 whitespace-nowrap text-sm font-bold text-gray-900">${log.calories}</td>
-                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-700">${log.protein}</td>
-                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-700">${log.water}</td>
-                    <td class="px-3 py-2 text-sm text-gray-600 max-w-xs overflow-hidden text-ellipsis">${log.workout}</td>
+            const userQuery = `Create a ${frequency} per week workout plan. My main fitness goal is: ${goal}. I have ${experience} experience, and the plan should cover a ${duration} period. Provide warm-ups and cool-downs for each workout day.`;
+
+            const systemPrompt = `You are a professional fitness coach and AI workout planner. Your task is to generate a detailed, structured, and easy-to-follow weekly workout plan. The plan must be in English. The output must be in clear **Markdown format**, starting with a bold title, followed by a brief introduction, and then the structured plan (e.g., Day 1, Day 2, etc.) using markdown headings and lists. Do not include any conversational filler or instructions outside of the final, generated plan text.`;
+            
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+
+            const payload = {
+                contents: [{ parts: [{ text: userQuery }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+            };
+
+            let responseText = "Failed to generate plan. Please try again.";
+            let attempt = 0;
+            const maxAttempts = 3;
+            const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+            while (attempt < maxAttempts) {
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (response.ok) {
+                        const result = await response.json();
+                        responseText = result.candidates?.[0]?.content?.parts?.[0]?.text || "No plan text received.";
+                        break; // Success, exit loop
+                    } else {
+                        throw new Error(`API returned status ${response.status}`);
+                    }
+                } catch (error) {
+                    console.error(`Attempt ${attempt + 1} failed:`, error);
+                    attempt++;
+                    if (attempt < maxAttempts) {
+                        await delay(1000 * Math.pow(2, attempt)); // Exponential backoff
+                    }
+                }
+            }
+
+            isGenerating = false;
+            // Save the generated plan, which will trigger the onSnapshot listener and update the UI
+            await savePlan(responseText);
+            setPage('dashboard');
+        }
+
+
+        // --- UI Rendering Functions ---
+
+        function setPage(page) {
+            currentPage = page;
+            renderApp();
+        }
+
+        function renderMarkdown(markdownText) {
+            if (!markdownText) return '';
+            
+            // Very basic Markdown to HTML conversion for display
+            let html = markdownText;
+            
+            // H2
+            html = html.replace(/^##\s*(.*)$/gm, '<h3 class="text-2xl font-bold text-gray-800 mt-4 mb-2">$1</h3>');
+            // H1 (Title)
+            html = html.replace(/^#\s*(.*)$/gm, '<h2 class="text-3xl font-extrabold text-indigo-700 border-b pb-2 mb-4">$1</h2>');
+
+            // Bold
+            html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            // Italic
+            html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+            
+            // Lists (ul)
+            html = html.replace(/^\*\s*(.*)$/gm, '<li><p class="mb-1 text-gray-700">$1</p></li>');
+            html = `<ul class="list-disc pl-5 space-y-2">${html}</ul>`;
+            // Remove empty <ul> if no list items were found (occurs after h3/strong conversion)
+            html = html.replace(/<ul class="list-disc pl-5 space-y-2">((<h3|<strong).*?)*<\/ul>/gs, (match) => {
+                if (!match.includes('<li>')) {
+                    // If no list items, return content without <ul> tags (preserving headings/bold)
+                    return match.replace(/<ul class="list-disc pl-5 space-y-2">|<\/ul>/g, '');
+                }
+                return match;
+            });
+            
+            // Paragraphs (Handle remaining lines as paragraphs)
+            html = html.split('\n').map(line => {
+                line = line.trim();
+                if (line && !line.startsWith('<h') && !line.startsWith('<li>') && !line.startsWith('<ul') && !line.startsWith('</ul') && !line.startsWith('<strong') && !line.startsWith('<em>')) {
+                    return `<p class="mb-3 leading-relaxed text-gray-700">${line}</p>`;
+                }
+                return line;
+            }).join('');
+            
+            // Clean up multiple spaces/newlines
+            html = html.replace(/<p><\/p>/g, '').replace(/<p>\s*<ul>/g, '<ul>').replace(/<\/ul>\s*<p>/g, '</ul>');
+            
+            return html;
+        }
+
+        // Main rendering function
+        function renderApp() {
+            const appContainer = document.getElementById('app-container');
+            let contentHTML = '';
+
+            // Loading state
+            if (!isAuthReady) {
+                appContainer.innerHTML = renderLoading('Initializing app...');
+                return;
+            }
+
+            // --- Dashboard Content (Current Plan) ---
+            if (currentPage === 'dashboard') {
+                const planContent = currentPlan.content || "No plan generated yet. Navigate to the 'Generate Plan' tab to create your first routine!";
+                const timestamp = currentPlan.timestamp ? new Date(currentPlan.timestamp).toLocaleString() : 'N/A';
+                
+                contentHTML = `
+                    <div class="space-y-6">
+                        <div class="flex justify-between items-center border-b pb-2">
+                            <h2 class="text-3xl font-extrabold text-indigo-800">My Current Workout Plan</h2>
+                            <button onclick="setPage('plan-generator')" class="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-150">
+                                Generate New Plan
+                            </button>
+                        </div>
+                        <p class="text-sm text-gray-500 italic">Last Generated: ${timestamp}</p>
+                        
+                        <div class="bg-gray-50 p-6 rounded-xl shadow-inner border border-indigo-100 min-h-[300px]">
+                            ${renderMarkdown(planContent)}
+                        </div>
+                        
+                    </div>
                 `;
-                logsTableBody.appendChild(row);
+            }
+
+            // --- Plan Generator Content ---
+            else if (currentPage === 'plan-generator') {
+                if (isGenerating) {
+                    contentHTML = renderLoading('Generating your personalized plan. This may take a moment...');
+                } else {
+                    contentHTML = `
+                        <div class="space-y-8">
+                            <h2 class="text-3xl font-extrabold text-indigo-700 border-b pb-2 mb-4">AI Plan Generator</h2>
+                            <p class="text-gray-600">Tell GymGenie about your goals to create a custom weekly workout routine.</p>
+
+                            <form id="plan-form" onsubmit="generateWorkoutPlan(event)" class="bg-white p-6 rounded-xl shadow-lg space-y-6 border border-indigo-200">
+                                <!-- Goal Input -->
+                                <div>
+                                    <label for="goal" class="block text-sm font-medium text-gray-700 mb-1">Primary Fitness Goal</label>
+                                    <input type="text" id="goal" name="goal" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 border focus:border-indigo-500 focus:ring-indigo-500" placeholder="e.g., Build Muscle Mass, Lose Weight, Improve Endurance">
+                                </div>
+                                
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <!-- Duration Input -->
+                                    <div>
+                                        <label for="duration" class="block text-sm font-medium text-gray-700 mb-1">Plan Duration</label>
+                                        <input type="text" id="duration" name="duration" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 border focus:border-indigo-500 focus:ring-indigo-500" placeholder="e.g., 8 weeks or 1 month">
+                                    </div>
+                                    
+                                    <!-- Frequency Input -->
+                                    <div>
+                                        <label for="frequency" class="block text-sm font-medium text-gray-700 mb-1">Workouts Per Week</label>
+                                        <input type="number" id="frequency" name="frequency" required min="1" max="7" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 border focus:border-indigo-500 focus:ring-indigo-500" placeholder="e.g., 4">
+                                    </div>
+                                </div>
+
+                                <!-- Experience Level -->
+                                <div>
+                                    <label for="experience" class="block text-sm font-medium text-gray-700 mb-1">Experience Level</label>
+                                    <select id="experience" name="experience" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 border bg-white focus:border-indigo-500 focus:ring-indigo-500">
+                                        <option value="">Select Level</option>
+                                        <option value="Beginner">Beginner (New to exercise)</option>
+                                        <option value="Intermediate">Intermediate (Consistent for 6+ months)</option>
+                                        <option value="Advanced">Advanced (Experienced, 1+ year consistent training)</option>
+                                    </select>
+                                </div>
+                                
+                                <button type="submit" class="w-full py-3 px-4 border border-transparent rounded-md shadow-lg text-lg font-bold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 transform hover:scale-[1.01]">
+                                    Generate Custom Plan
+                                </button>
+                            </form>
+                        </div>
+                    `;
+                }
+            }
+
+            appContainer.innerHTML = contentHTML;
+            updateNavColors();
+        }
+
+        // --- Utility UI Functions ---
+        function renderLoading(message) {
+            return `
+                <div class="flex flex-col items-center justify-center h-64 text-center p-8 bg-indigo-50 rounded-xl shadow-inner">
+                    <div class="animate-spin rounded-full h-12 w-12 border-b-4 border-indigo-600 mb-4"></div>
+                    <p class="text-lg font-semibold text-gray-700">${message}</p>
+                </div>
+            `;
+        }
+
+        function renderError(message) {
+            return `
+                <div class="p-8 text-center text-red-700 bg-red-100 rounded-lg shadow-lg">
+                    <h2 class="text-xl font-bold mb-2">System Error</h2>
+                    <p>${message}</p>
+                </div>
+            `;
+        }
+
+        function updateNavColors() {
+            document.querySelectorAll('.nav-button').forEach(btn => {
+                if (btn.dataset.page === currentPage) {
+                    btn.classList.remove('text-gray-600', 'hover:text-indigo-600');
+                    btn.classList.add('bg-indigo-500', 'text-white', 'shadow-md');
+                } else {
+                    btn.classList.remove('bg-indigo-500', 'text-white', 'shadow-md');
+                    btn.classList.add('text-gray-600', 'hover:text-indigo-600', 'hover:bg-indigo-100');
+                }
             });
         }
 
-        // Utility: Display temporary form messages
-        function showMessage(text, type) {
-            formMessage.textContent = text;
-            formMessage.classList.remove('hidden', 'bg-red-100', 'bg-green-100', 'text-red-700', 'text-green-700');
-            
-            if (type === 'green') {
-                formMessage.classList.add('bg-green-100', 'text-green-700');
-            } else {
-                formMessage.classList.add('bg-red-100', 'text-red-700');
-            }
+        function alertModal(message, isError = false) {
+            const modal = document.getElementById('alert-modal');
+            const messageEl = document.getElementById('alert-message');
+            const headerEl = document.getElementById('alert-header');
+            const bgColor = isError ? 'bg-red-500' : 'bg-green-500';
 
+            headerEl.textContent = isError ? 'Attention' : 'Success';
+            headerEl.className = `text-xl font-bold text-white p-3 rounded-t-lg ${bgColor}`;
+            messageEl.textContent = message;
+
+            modal.classList.remove('hidden');
             setTimeout(() => {
-                formMessage.classList.add('hidden');
-            }, 5000);
+                modal.classList.add('opacity-0');
+                setTimeout(() => modal.classList.add('hidden'), 300);
+            }, 3000); // Hide after 3 seconds
+            modal.classList.remove('opacity-0');
         }
 
-        // Event Listeners
-        logForm.addEventListener('submit', saveLog);
+        // Expose functions globally for HTML event handlers
+        window.setupFirebase = setupFirebase;
+        window.setPage = setPage;
+        window.generateWorkoutPlan = generateWorkoutPlan;
+        window.renderApp = renderApp;
 
-        // Start the application
-        initializeFirebase();
-
+        // Initialize the application on load
+        window.onload = setupFirebase;
     </script>
+
+    <!-- Configure Inter font and custom theme -->
+    <style>
+        :root {
+            font-family: 'Inter', sans-serif;
+        }
+        .main-bg {
+            background-color: #f0f4f8; /* Light blue/gray background */
+        }
+    </style>
+</head>
+<body class="main-bg min-h-screen p-4 sm:p-8">
+
+    <!-- Global Alert/Message Modal (replaces alert()) -->
+    <div id="alert-modal" class="fixed top-0 right-0 m-4 w-64 z-50 hidden opacity-0 transition-opacity duration-300">
+        <div class="rounded-lg shadow-xl overflow-hidden">
+            <div id="alert-header" class="text-xl font-bold text-white p-3 rounded-t-lg">Header</div>
+            <div class="bg-white p-4">
+                <p id="alert-message" class="text-gray-700"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application Container -->
+    <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-2xl p-6 sm:p-10 border-t-8 border-indigo-600">
+
+        <!-- Header and User Info -->
+        <header class="mb-8 border-b pb-4">
+            <h1 class="text-4xl font-extrabold text-indigo-800 flex items-center">
+                <svg class="w-8 h-8 mr-3 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-1.343 3-3s-1.343-3-3-3m0 6v-6"></path></svg>
+                GymGenie
+            </h1>
+            <p class="text-sm text-gray-500 mt-1" id="user-id-display">Connecting...</p>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="flex space-x-2 mb-8 p-1 bg-gray-100 rounded-xl shadow-inner">
+            <button data-page="dashboard" onclick="setPage('dashboard')" class="nav-button flex-1 py-3 px-4 rounded-lg font-semibold text-gray-600 transition duration-150">
+                <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19H3v-7m6 7h3m-3 0V6"></path></svg>
+                Current Plan
+            </button>
+            <button data-page="plan-generator" onclick="setPage('plan-generator')" class="nav-button flex-1 py-3 px-4 rounded-lg font-semibold text-gray-600 transition duration-150">
+                <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.158A1 1 0 0112 1.996l3 1.5a1 1 0 01.5.866v3.659L19.5 9a1 1 0 01.5.866v4.613a1 1 0 01-.5.866l-7.45 3.725a1 1 0 01-1 0L3.5 15.345a1 1 0 01-.5-.866V9.866a1 1 0 01.5-.866L8.5 6.273V2.866a1 1 0 01.5-.866l3-1.5z"></path></svg>
+                Generate Plan
+            </button>
+        </nav>
+
+        <!-- Dynamic Content Area -->
+        <main id="app-container" class="min-h-96">
+            <!-- Content will be rendered here by JavaScript -->
+            <div class="flex items-center justify-center h-48">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500"></div>
+                <p class="ml-4 text-gray-600">Initializing app...</p>
+            </div>
+        </main>
+    </div>
+
 </body>
 </html>
-message.txt
-16 KB
