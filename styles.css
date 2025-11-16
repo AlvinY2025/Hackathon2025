@@ -69,3 +69,30 @@ footer {
     font-size: 0.9rem;
     color: #777;
 }
+.home-arrow {
+    position: fixed;
+    top: 50%;
+    left: 20px;
+    transform: translateY(-50%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 40px;
+    height: 40px;
+    border: 2px solid #333;
+    border-radius: 5px;
+    background-color: #fff;
+    color: #333;
+    font-size: 24px;
+    font-weight: bold;
+    text-decoration: none;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    z-index: 1000;
+}
+
+.home-arrow:hover {
+    background-color: #333;
+    color: #fff;
+    border-color: #333;
+    cursor: pointer;
+}
