@@ -1,256 +1,534 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Science-Backed Fitness Planner</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Fitness Planner — Science-Backed</title>
 <style>
-    body { font-family: Arial, sans-serif; background: #f0f2f5; display: flex; justify-content: center; padding: 40px 0;}
-    .container { background: #fff; padding: 30px 40px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-width: 700px; width: 100%;}
-    h2 { text-align: center; margin-bottom: 20px; color: #333;}
-    label { display: block; margin-top: 15px; font-weight: bold;}
-    select, button { margin-top: 5px; width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px;}
-    .checkbox-group { display: flex; flex-direction: column;}
-    button { background-color: #4CAF50; color: white; border: none; margin-top: 20px; cursor: pointer; font-weight: bold; transition: background 0.3s;}
-    button:hover { background-color: #45a049;}
-    #recommendation { margin-top: 25px; padding: 20px; background-color: #e7f5e7; border-radius: 8px; display: none;}
-    .workout-day { margin-bottom: 15px;}
-    .exercise { margin-left: 15px; margin-bottom: 5px; font-weight: bold;}
-    .exercise-why { font-size: 13px; color: #555; margin-left: 25px; margin-bottom: 8px;}
-    .phase-info { margin-top: 10px; font-weight: bold;}
+  :root{
+    --bg:#f5f7fb; --card:#ffffff; --accent:#2563eb; --muted:#6b7280; --success:#16a34a;
+    --maxw:900px;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    background:var(--bg);
+    color:#0f172a;
+    -webkit-font-smoothing:antialiased;
+  }
+  .page {
+    max-width:var(--maxw);
+    margin:28px auto;
+    padding:22px;
+  }
+  header{
+    text-align:center;
+    margin-bottom:18px;
+  }
+  header h1{font-size:1.6rem;margin:0 0 6px}
+  header p{margin:0;color:var(--muted)}
+  .card{
+    background:var(--card);
+    border-radius:12px;
+    padding:18px;
+    box-shadow:0 6px 20px rgba(2,6,23,0.06);
+    margin-bottom:18px;
+  }
+  form .row{display:flex;gap:12px;flex-wrap:wrap}
+  label{display:block;font-weight:600;margin-top:10px}
+  select, input[type="number"]{
+    width:100%;
+    padding:10px 12px;
+    border-radius:8px;
+    border:1px solid #e6e9ef;
+    background:white;
+    font-size:14px;
+  }
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  button.primary{
+    margin-top:14px;
+    background:var(--accent);
+    color:white;
+    border:none;
+    padding:12px 16px;
+    border-radius:10px;
+    font-weight:700;
+    cursor:pointer;
+    font-size:15px;
+  }
+  button.primary:hover{filter:brightness(.95)}
+  .result{
+    display:none;
+    margin-top:18px;
+  }
+  .phase{
+    background:#eef2ff;
+    border-left:4px solid var(--accent);
+    padding:12px;
+    border-radius:8px;
+    margin-bottom:12px;
+    color:#0f172a;
+  }
+  .rationale{background:#f0fdf4;border-left:4px solid var(--success); padding:12px;border-radius:8px;margin-bottom:12px}
+  .day{
+    margin-bottom:14px;
+  }
+  .day h3{margin:0 0 8px}
+  .exercise{padding:8px;border-radius:8px;background:#ffffff;margin-bottom:8px;border:1px solid #eef2f6}
+  .exercise strong{display:block}
+  .muted{color:var(--muted);font-size:13px}
+  .card-title{font-weight:800;margin-bottom:6px}
+  .small{font-size:13px;color:var(--muted)}
+  .supp-link{display:inline-block;margin-top:14px;padding:10px 14px;border-radius:10px;background:#111827;color:#fff;text-decoration:none}
+  /* responsive */
+  @media (max-width:700px){
+    .grid-2{grid-template-columns:1fr}
+    header h1{font-size:1.4rem}
+  }
 </style>
 </head>
 <body>
+  <div class="page">
+    <header>
+      <h1>Fitness Planner — Personalized, Science-Backed Plans</h1>
+      <p>Enter simple inputs and get a clear weekly plan, split rationale, and evidence-based guidance you can follow on the phone or desktop.</p>
+    </header>
 
-<div class="container">
-    <h2>Science-Backed Fitness Planner</h2>
+    <section class="card">
+      <div class="card-title">Plan Inputs</div>
+      <form id="plannerForm" onsubmit="event.preventDefault(); generatePlan();">
+        <div class="grid-2">
+          <div>
+            <label for="goal">Fitness Goal</label>
+            <select id="goal" required>
+              <option value="muscle">Build Muscle (Hypertrophy)</option>
+              <option value="fat">Lose Fat (Priority: Cardio + Preserve Muscle)</option>
+              <option value="strength">Gain Strength (Maximal Strength)</option>
+            </select>
+          </div>
+          <div>
+            <label for="level">Experience Level</label>
+            <select id="level" required>
+              <option value="beginner">Beginner (0–6 months)</option>
+              <option value="intermediate">Intermediate (6–24 months)</option>
+              <option value="advanced">Advanced (2+ years)</option>
+            </select>
+          </div>
+        </div>
 
-    <!-- Inputs -->
-    <label for="goal">Fitness Goal</label>
-    <select id="goal">
-        <option value="muscle">Build Muscle</option>
-        <option value="fat">Lose Fat</option>
-        <option value="strength">Gain Strength</option>
-    </select>
+        <div class="grid-2">
+          <div>
+            <label for="equipment">Equipment Available</label>
+            <select id="equipment" required>
+              <option value="full-gym">Full Gym (barbells, machines)</option>
+              <option value="home-dumbbells">Home — Dumbbells + Bench</option>
+              <option value="bodyweight">Bodyweight Only (no weights)</option>
+            </select>
+          </div>
+          <div>
+            <label for="days">Days Per Week</label>
+            <select id="days" required>
+              <option value="2">2</option>
+              <option value="3" selected>3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+            </select>
+          </div>
+        </div>
 
-    <label for="level">Experience Level</label>
-    <select id="level">
-        <option value="beginner">Beginner</option>
-        <option value="intermediate">Intermediate</option>
-        <option value="advanced">Advanced</option>
-    </select>
+        <div class="row">
+          <div style="flex:1">
+            <label for="duration">Typical Session Duration (minutes)</label>
+            <select id="duration">
+              <option value="20">~20</option>
+              <option value="30" selected>~30</option>
+              <option value="45">~45</option>
+              <option value="60">~60</option>
+            </select>
+          </div>
+          <div style="width:140px">
+            <label for="age">Age (optional)</label>
+            <input id="age" type="number" min="12" max="100" placeholder="e.g. 20"/>
+          </div>
+        </div>
 
-    <label for="equipment">Equipment Available</label>
-    <select id="equipment">
-        <option value="full-gym">Full Gym</option>
-        <option value="home-dumbbells">Home Dumbbells</option>
-        <option value="bodyweight">Bodyweight Only</option>
-    </select>
+        <div style="margin-top:10px" class="small">We provide exercise selections and progress guidance. Supplements are on a separate page.</div>
+        <button class="primary" type="submit">Generate Optimized Plan</button>
+      </form>
+    </section>
 
-    <label for="days">Days Per Week</label>
-    <select id="days">
-        <option value="2">2 Days</option>
-        <option value="3">3 Days</option>
-        <option value="4">4 Days</option>
-        <option value="5">5 Days</option>
-        <option value="6">6 Days</option>
-    </select>
+    <section id="result" class="card result" aria-live="polite">
+      <!-- Phase box -->
+      <div id="phaseBox" class="phase"></div>
 
-    <button onclick="generatePlan()">Generate Weekly Plan</button>
-    <div id="recommendation"></div>
-</div>
+      <!-- Rationale area -->
+      <div id="rationaleBox" class="rationale"></div>
+
+      <!-- Weekly plan -->
+      <div id="planBox"></div>
+
+      <!-- Supplements link -->
+      <div style="text-align:center">
+        <a class="supp-link" href="supplements.html">Find Your Optimal Supplements</a>
+      </div>
+    </section>
+
+  </div>
 
 <script>
-// --------------------------
-// Science-backed exercises by equipment
-// --------------------------
-const exercisesByEquipment = {
-    "full-gym": {
-        push: [
-            {name: "Bench Press", why: "Chest, shoulders, triceps; compound lift stimulates hypertrophy."},
-            {name: "Overhead Press", why: "Shoulder and triceps strength; compound movement."},
-            {name: "Incline Dumbbell Press", why: "Targets upper chest and stabilizers."}
-        ],
-        pull: [
-            {name: "Pull-Ups", why: "Lat and biceps development; vertical pull."},
-            {name: "Barbell Rows", why: "Upper/mid back thickness; horizontal pull."},
-            {name: "Face Pulls", why: "Rear delts and shoulder health."}
-        ],
-        legs: [
-            {name: "Squats", why: "Quadriceps, glutes, and core; foundational leg exercise."},
-            {name: "Deadlifts", why: "Posterior chain strength; total-body compound lift."},
-            {name: "Leg Press", why: "Quad/glute hypertrophy safely for beginners."}
-        ]
-    },
-    "home-dumbbells": {
-        push: [
-            {name: "Dumbbell Bench Press", why: "Chest, shoulders, triceps; unilateral balance."},
-            {name: "Dumbbell Shoulder Press", why: "Builds delts and triceps; free-weight stability."},
-            {name: "Push-Ups", why: "Bodyweight chest exercise; scalable."}
-        ],
-        pull: [
-            {name: "One-Arm Dumbbell Row", why: "Back and biceps; unilateral correction."},
-            {name: "Reverse Fly with Dumbbells", why: "Rear delts and upper back stabilization."},
-            {name: "Bicep Curls", why: "Direct bicep hypertrophy."}
-        ],
-        legs: [
-            {name: "Goblet Squat", why: "Quads, glutes, core; beginner-friendly weighted squat."},
-            {name: "Dumbbell Romanian Deadlift", why: "Hamstrings and glutes; hip hinge pattern."},
-            {name: "Lunges", why: "Leg strength and balance; unilateral development."}
-        ]
-    },
-    "bodyweight": {
-        push: [
-            {name: "Push-Ups", why: "Chest, shoulders, triceps; scalable for all levels."},
-            {name: "Pike Push-Ups", why: "Shoulders; overhead pressing with bodyweight."},
-            {name: "Tricep Dips", why: "Triceps and chest; can use a chair or bench."}
-        ],
-        pull: [
-            {name: "Inverted Rows under Table or TRX", why: "Back and biceps; bodyweight horizontal pull."},
-            {name: "Doorway Rows", why: "Back and biceps using bodyweight."},
-            {name: "Supermans", why: "Lower back; posterior chain activation."}
-        ],
-        legs: [
-            {name: "Bodyweight Squats", why: "Quads, glutes, core; foundational leg movement."},
-            {name: "Lunges", why: "Unilateral leg strength; balance and stability."},
-            {name: "Glute Bridges", why: "Glutes and hamstrings activation; posterior chain."}
-        ]
+/* ---------- Exercise libraries per equipment.
+   Each entry: {name, why, recommendedSetsRepsByGoal: {muscle:..., strength:..., fat:...}} 
+   Sets/Reps format used: "3x8-12" etc. 
+   The libraries are intentionally chosen so each equipment has its own appropriate exercises. 
+*/
+const LIB = {
+  "full-gym": {
+    push: [
+      { name: "Barbell Bench Press", why: "Primary horizontal pressing compound; high mechanical tension for chest and triceps.", sets: { muscle:"3x6-12", strength:"4x3-6", fat:"3x6-10" } },
+      { name: "Overhead Press (Barbell)", why: "Compound shoulder press; improves pressing strength and upper-body stability.", sets: { muscle:"3x6-10", strength:"4x3-6", fat:"3x6-10" } },
+      { name: "Incline Dumbbell Press", why: "Emphasizes upper chest and shoulder stabilization for balanced chest development.", sets: { muscle:"3x8-12", strength:"3x5-8", fat:"3x8-12" } }
+    ],
+    pull: [
+      { name: "Weighted Pull-Ups", why: "Vertical pulling builds lats, biceps and improves upper-body pulling strength.", sets: { muscle:"3x6-10", strength:"5x3-6", fat:"3x6-10" } },
+      { name: "Barbell Bent-Over Row", why: "Horizontal pulling; develops mid/upper back thickness and posture.", sets: { muscle:"3x6-12", strength:"4x3-6", fat:"3x6-10" } },
+      { name: "Face Pulls", why: "Rotator cuff and rear delt health; improves shoulder stability and posture.", sets: { muscle:"3x12-20", strength:"3x10-12", fat:"3x12-20" } }
+    ],
+    legs: [
+      { name: "Back Squat", why: "Foundational compound for quads, glutes, core and total-body strength.", sets: { muscle:"3x6-12", strength:"5x3-6", fat:"3x6-10" } },
+      { name: "Romanian Deadlift", why: "Posterior chain emphasis: hamstrings and glutes—critical for balanced leg development.", sets: { muscle:"3x6-10", strength:"4x3-6", fat:"3x8-12" } },
+      { name: "Leg Press", why: "Controlled quad/glute hypertrophy option, useful for volume without taxing lower back.", sets: { muscle:"3x8-15", strength:"3x5-8", fat:"3x10-15" } }
+    ],
+    core: [
+      { name: "Plank", why: "Isometric core stability; transfers to safer, stronger lifts.", sets:{ muscle:"3x30-60s", strength:"3x20-45s", fat:"3x30-60s" } },
+      { name: "Hanging Leg Raises", why: "Anterior core control and hip flexor strength used in many compound lifts.", sets:{ muscle:"3x8-15", strength:"3x6-10", fat:"3x8-15" } }
+    ],
+    cardio: [
+      { name: "Moderate-intensity Cardio (Treadmill/Bike)", why: "Sustained cardio elevates energy expenditure and supports fat loss while preserving steady-state capacity.", duration: { fat:"30-45 min", muscle:"15-25 min", strength:"10-20 min" } },
+      { name: "Interval Sprints (Track/Treadmill)", why: "Short high-intensity intervals increase EPOC and efficiency — effective time-saving fat loss tool.", duration: { fat:"10-20 min (e.g., 10×30s sprint/90s rest)", muscle:"5-10 min", strength:"5-8 min" } }
+    ]
+  },
+
+  "home-dumbbells": {
+    push: [
+      { name: "Dumbbell Bench Press", why: "Unilateral pressing to build chest and address imbalances; progressive overload with dumbbells.", sets:{ muscle:"3x8-12", strength:"4x5-8", fat:"3x8-12" } },
+      { name: "Dumbbell Shoulder Press", why: "Overhead pressing using free weights for shoulder strength and stability.", sets:{ muscle:"3x8-12", strength:"4x5-8", fat:"3x8-12" } },
+      { name: "Incline Push-Up (feet elevated)", why: "Upper-chest emphasis that scales by changing angle or foot height.", sets:{ muscle:"3x8-15", strength:"3x5-8", fat:"3x8-15" } }
+    ],
+    pull: [
+      { name: "One-arm Dumbbell Row", why: "Unilateral back work to build lats and correct imbalances.", sets:{ muscle:"3x8-12", strength:"4x5-8", fat:"3x8-12" } },
+      { name: "Reverse Fly (Dumbbells)", why: "Rear delts and upper back health; counters forward-leaning posture.", sets:{ muscle:"3x12-20", strength:"3x8-12", fat:"3x12-20" } },
+      { name: "Dumbbell Hammer Curls", why: "Brachialis and forearms; helps with grip and pulling strength.", sets:{ muscle:"3x8-12", strength:"3x6-10", fat:"3x8-12" } }
+    ],
+    legs: [
+      { name: "Goblet Squat", why: "Beginner-friendly weighted squat that builds quads, glutes and core control.", sets:{ muscle:"3x8-15", strength:"4x5-8", fat:"3x8-15" } },
+      { name: "Dumbbell Romanian Deadlift", why: "Posterior chain with limited equipment; trains hip hinge and hamstrings.", sets:{ muscle:"3x8-12", strength:"4x5-8", fat:"3x8-12" } },
+      { name: "Walking Lunges (dumbbells)", why: "Unilateral leg strength and conditioning; increases metabolic demand.", sets:{ muscle:"3x10-14 (each leg)", strength:"3x6-10", fat:"3x10-14" } }
+    ],
+    core: [
+      { name: "Dead Bug", why: "Core control with anti-rotation emphasis; very accessible.", sets:{ muscle:"3x10-16", strength:"3x6-12", fat:"3x10-16" } },
+      { name: "Side Plank", why: "Lateral core stability reducing risk of imbalanced loading.", sets:{ muscle:"3x20-45s", strength:"3x20-40s", fat:"3x20-45s" } }
+    ],
+    cardio: [
+      { name: "Brisk Walk / Incline Walk", why: "Low-impact steady-state activity that increases calorie burn and is sustainable.", duration:{ fat:"30-50 min", muscle:"20-30 min", strength:"10-20 min" } },
+      { name: "Dumbbell Circuit Intervals (conditioning)", why: "Short circuits combining movements keep heart rate high and preserve muscle via resistance.", duration:{ fat:"20-30 min", muscle:"10-20 min", strength:"8-15 min" } }
+    ]
+  },
+
+  "bodyweight": {
+    push: [
+      { name: "Push-Ups (progressions)", why: "Scalable push pattern: knee → standard → decline for progressive overload.", sets:{ muscle:"3x8-20", strength:"4x5-12", fat:"3x10-20" } },
+      { name: "Pike Push-Ups / Elevated Pike", why: "Bodyweight overhead pressing progression for shoulder strength.", sets:{ muscle:"3x6-12", strength:"4x4-8", fat:"3x8-15" } },
+      { name: "Bench/Dip Chair Dips", why: "Triceps-dominant push; increases pressing capacity using bodyweight.", sets:{ muscle:"3x8-15", strength:"3x5-10", fat:"3x8-15" } }
+    ],
+    pull: [
+      { name: "Inverted Rows (table/TRX)", why: "Horizontal pulling pattern using bodyweight to build back and biceps.", sets:{ muscle:"3x6-15", strength:"4x5-8", fat:"3x8-15" } },
+      { name: "Doorway Rows / Towel Rows", why: "Accessible horizontal pull that mimics rowing mechanics.", sets:{ muscle:"3x6-15", strength:"3x5-10", fat:"3x8-15" } },
+      { name: "Superman / Back Extensions", why: "Lower-back and posterior chain endurance using bodyweight.", sets:{ muscle:"3x10-20", strength:"3x8-15", fat:"3x10-20" } }
+    ],
+    legs: [
+      { name: "Bodyweight Squats (progressions)", why: "Fundamental lower-body pattern; progress by depth, tempo, or reps.", sets:{ muscle:"3x12-25", strength:"4x6-12", fat:"3x12-25" } },
+      { name: "Reverse Lunges", why: "Unilateral leg strength with lower joint stress than forward lunges.", sets:{ muscle:"3x8-15", strength:"3x6-10", fat:"3x10-16" } },
+      { name: "Single-Leg Romanian Deadlift (bodyweight)", why: "Posterior chain and balance using single-leg resistance.", sets:{ muscle:"3x8-14", strength:"3x5-10", fat:"3x8-14" } }
+    ],
+    core: [
+      { name: "Plank Variations", why: "Develops anti-extension and core stiffness needed in compound movements.", sets:{ muscle:"3x30-90s", strength:"3x20-60s", fat:"3x30-90s" } },
+      { name: "Hollow Hold", why: "Anterior core control that improves transfer to many bodyweight moves.", sets:{ muscle:"3x20-60s", strength:"3x15-45s", fat:"3x20-60s" } }
+    ],
+    cardio: [
+      { name: "HIIT Bodyweight Intervals (burpees, high knees)", why: "Maximizes calorie burn in short time and preserves muscle via resistance elements.", duration:{ fat:"12-20 min (e.g., 20s on/40s off)", muscle:"8-12 min", strength:"6-10 min" } },
+      { name: "Moderate-pace Jog / Brisk Walk", why: "Sustainable steady-state cardio that increases weekly caloric deficit.", duration:{ fat:"30-45 min", muscle:"20-30 min", strength:"10-20 min" } }
+    ]
+  }
+};
+
+/* ---------- Splits mapping (evidence-based) ----------
+  2 -> Full body x2
+  3 -> Push / Pull / Legs (or full-body for beginner fat-loss; we'll choose PPL for muscle/strength,
+       but for fat-loss with beginner level full-body might be preferred — we'll explain)
+  4 -> Upper / Lower x2
+  5 -> Push / Pull / Legs / Upper / Lower  (higher volume)
+  6 -> Push / Pull / Legs x2
+*/
+const SPLITS_BY_DAYS = {
+  2: ["fullbody","fullbody"],
+  3: ["push","pull","legs"],
+  4: ["upper","lower","upper","lower"],
+  5: ["push","pull","legs","upper","lower"],
+  6: ["push","pull","legs","push","pull","legs"]
+};
+
+/* Map logical split -> which muscle groups we will select from */
+const SPLIT_TO_GROUPS = {
+  push: ["push","core"],
+  pull: ["pull","core"],
+  legs: ["legs","core"],
+  upper: ["push","pull","core"],
+  lower: ["legs","core"],
+  fullbody: ["push","pull","legs","core"]
+};
+
+/* Utility: pick n distinct exercises from a pool, avoiding prev picks */
+function pickExercisesFromPool(pool, count, prevList){
+  const selectable = pool.filter(e => !prevList.includes(e.name));
+  const chosen = [];
+  const copy = selectable.slice();
+  while(chosen.length < count && copy.length > 0){
+    const i = Math.floor(Math.random()*copy.length);
+    chosen.push(copy.splice(i,1)[0]);
+  }
+  // if not enough unique, allow repeats (but minimize)
+  if(chosen.length < count){
+    const backup = pool.slice();
+    while(chosen.length < count && backup.length>0){
+      const i = Math.floor(Math.random()*backup.length);
+      const c = backup.splice(i,1)[0];
+      if(!chosen.includes(c)) chosen.push(c);
     }
-};
-
-// --------------------------
-// Splits by days per week
-// --------------------------
-const splits = {
-    2: ["fullbody", "fullbody"],
-    3: ["push", "pull", "legs"],
-    4: ["upper", "lower", "upper", "lower"],
-    5: ["push", "pull", "legs", "push", "pull"],
-    6: ["push", "pull", "legs", "push", "pull", "legs"]
-};
-
-// Map split type to muscles
-const splitMuscles = {
-    push: ["push"],
-    pull: ["pull"],
-    legs: ["legs"],
-    upper: ["push","pull"],
-    lower: ["legs"],
-    fullbody: ["push","pull","legs"]
-};
-
-// Helper: select exercises without repetition
-function selectExercises(muscles, equipment, prevExercises=[]) {
-    let plan = [];
-    muscles.forEach(group => {
-        const pool = exercisesByEquipment[equipment][group].filter(e => !prevExercises.includes(e.name));
-        if(pool.length > 0){
-            const chosen = pool[Math.floor(Math.random()*pool.length)];
-            plan.push(chosen);
-            prevExercises.push(chosen.name);
-        }
-    });
-    return plan;
+  }
+  return chosen;
 }
 
-// Generate weekly plan
+/* Build sets/reps string based on goal & level for given exercise object */
+function setsRepsFor(exObj, goal, level){
+  // Use exObj.sets[goal] if exists, else fallback to generic
+  let base = (exObj.sets && exObj.sets[goal]) ? exObj.sets[goal] : (goal==="muscle" ? "3x8-12" : (goal==="strength" ? "4x3-6" : "3x8-12"));
+  // Adjust for level slightly: beginners slightly lower intensity but similar reps; advanced might add sets
+  if(level==="beginner"){
+    // keep base
+  } else if(level==="intermediate"){
+    // small bump for volume
+    if(base.includes("3x")) base = base.replace("3x", "3x"); // keep
+  } else if(level==="advanced"){
+    // increase sets if plausible
+    if(base.startsWith("3x")) base = base.replace("3x", "4x");
+    else if(base.startsWith("4x")) base = base;
+  }
+  return base;
+}
+
+/* Cardio-specific formatting: duration value + explanation */
+function cardioDurationFor(cardioObj, goal){
+  const dur = cardioObj.duration && cardioObj.duration[goal] ? cardioObj.duration[goal] : (goal==="fat" ? "30 min" : "15 min");
+  return dur;
+}
+
+/* Build split rationale text (science-backed) */
+function buildSplitRationale({goal, level, equipment, days}){
+  const levelText = {
+    beginner: "Beginners gain rapidly from frequent exposure to movement patterns; neural adaptation and motor learning are major drivers of early strength and hypertrophy gains.",
+    intermediate: "Intermediates benefit from a balance of frequency and volume; variety helps break plateaus while recovery capacity is still moderate.",
+    advanced: "Advanced lifters require higher weekly volume and careful distribution to allow high-quality training while managing fatigue; specificity and progressive overload are crucial."
+  };
+  const goalText = {
+    muscle: "Hypertrophy responds best to sufficient weekly volume and training a muscle ~2×/week with enough mechanical tension. Splits like Push/Pull/Legs or Upper/Lower distribute volume and allow focused recovery between sessions.",
+    fat: "Fat loss requires a caloric deficit; exercise's role is to preserve muscle and increase total energy expenditure. Cardio increases weekly caloric burn; resistance training preserves lean mass and metabolic rate. Combining both is ideal.",
+    strength: "Strength improvements rely on high-quality, lower-rep heavy sets of compound lifts and frequent practice of those lifts to improve neural efficiency. Splits that distribute compound lifts across the week (e.g., Upper/Lower or PPL) work well."
+  };
+  const equipmentText = {
+    "full-gym": "With a full gym you can utilize barbell compounds and machines to more precisely manipulate load, which is ideal for progressive overload and strength adaptations.",
+    "home-dumbbells": "Dumbbells allow progressive overload via increasing weight or sets and support unilateral work to fix imbalances—excellent for both hypertrophy and strength when barbells aren't available.",
+    "bodyweight": "Bodyweight training relies on manipulating volume, tempo, and progression (lever changes, single-leg/arm variations). For fat loss and beginners, bodyweight is effective when programmed with sufficient intensity and volume."
+  };
+  const splitChoice = SPLITS_BY_DAYS[days] ? SPLITS_BY_DAYS[days].join(" → ") : "a suitable split";
+  const daysReason = {
+    2: "2 days per week: Full-body sessions are most effective when frequency is low. Hitting each muscle in two sessions helps distribute volume.",
+    3: "3 days per week: PPL (Push/Pull/Legs) or full-body can work. PPL gives better exercise focus and recovery while still giving ~1-2 exposures per muscle per week.",
+    4: "4 days per week: Upper/Lower is evidence-based to hit muscles twice per week with higher per-session quality.",
+    5: "5 days per week: Higher volume split allows more total weekly sets distributed across focused sessions, improving hypertrophy potential.",
+    6: "6 days per week: PPL x2 increases frequency and volume—best for experienced trainees with higher recovery capacity."
+  };
+
+  return `
+    <div><strong>Why this split fits you:</strong></div>
+    <div style="margin-top:6px" class="small">
+      <strong>Experience:</strong> ${level.charAt(0).toUpperCase() + level.slice(1)} — ${levelText[level]}
+    </div>
+    <div style="margin-top:6px" class="small">
+      <strong>Goal:</strong> ${goal.charAt(0).toUpperCase() + goal.slice(1)} — ${goalText[goal]}
+    </div>
+    <div style="margin-top:6px" class="small">
+      <strong>Equipment:</strong> ${equipment === "full-gym" ? "Full Gym" : equipment === "home-dumbbells" ? "Home Dumbbells" : "Bodyweight Only"} — ${equipmentText[equipment]}
+    </div>
+    <div style="margin-top:6px" class="small">
+      <strong>Split chosen:</strong> ${splitChoice} — ${daysReason[days] || ""}
+    </div>
+
+    <div style="margin-top:8px" class="small">
+      <strong>How your inputs affected this plan:</strong> Your <em>goal</em> determined whether cardio or compound heavy work is the priority. Your <em>level</em> determined volume and sets/reps complexity (beginners: simpler progressions and fewer heavy sets; advanced: more volume). Your <em>equipment</em> constrained exercise selection to ensure every exercise is usable by you.
+    </div>
+  `;
+}
+
+/* Main renderer */
 function generatePlan(){
-    const goal = document.getElementById('goal').value;
-    const level = document.getElementById('level').value;
-    const equipment = document.getElementById('equipment').value;
-    const days = parseInt(document.getElementById('days').value);
+  // gather inputs
+  const goal = document.getElementById('goal').value;
+  const level = document.getElementById('level').value;
+  const equipment = document.getElementById('equipment').value;
+  const days = parseInt(document.getElementById('days').value,10);
+  const duration = parseInt(document.getElementById('duration').value,10) || 30;
+  const age = parseInt(document.getElementById('age').value,10) || null;
 
-    const recDiv = document.getElementById('recommendation');
-    recDiv.style.display = 'block';
-    recDiv.innerHTML = ``;
+  // show result area
+  document.getElementById('result').style.display = "block";
 
-    const splitChosen = splits[days];
-    
-    // SCIENCE-BACKED SPLIT RATIONALE GENERATION
-    let rationale = "<h3>Why This Split Is Optimal for You</h3>";
+  // Phase box message (short)
+  const phaseBox = document.getElementById('phaseBox');
+  if(goal==="muscle"){
+    phaseBox.innerHTML = `<strong>Phase:</strong> Hypertrophy-focused. Aim to progressively increase weekly mechanical tension (weight or reps) while recovering adequately.`;
+  } else if(goal==="fat"){
+    phaseBox.innerHTML = `<strong>Phase:</strong> Fat-loss-focused. Prioritize consistent calorie deficit; program cardio to increase weekly energy expenditure and resistance training to preserve muscle.`;
+  } else {
+    phaseBox.innerHTML = `<strong>Phase:</strong> Strength-focused. Prioritize compound lifts, high-quality low-rep sets, and progressive overload.`;
+  }
 
-    // EXPERIENCE-LEVEL LOGIC
-    const levelReason = {
-        beginner: "Beginners respond best to higher frequency (training a muscle 2–3× per week) and simpler splits. Research shows beginners make faster strength and hypertrophy gains from repeating movement patterns frequently, improving neural adaptation and motor learning.",
-        intermediate: "Intermediates benefit from moderate frequency and balanced volume. The chosen split provides enough variation and recovery to support continued hypertrophy, while introducing more exercise variety and complexity.",
-        advanced: "Advanced lifters require higher weekly volume, exercise variation, and movement specificity. This split maximizes weekly set count while distributing fatigue to avoid overtraining."
-    };
+  // Rationale (science-backed)
+  document.getElementById('rationaleBox').innerHTML = buildSplitRationale({goal, level, equipment, days});
 
-    // GOAL-BASED LOGIC
-    const goalReason = {
-        muscle: "Hypertrophy training is driven by total weekly volume, mechanical tension, and training a muscle at least twice per week. The selected split ensures optimal frequency and volume distribution for maximizing muscle growth.",
-        fat: "Training during fat loss must preserve muscle. The selected split balances frequency and recovery so you maintain strength while creating an energy deficit. This is supported by research showing resistance training mitigates metabolic slowdown during a cut.",
-        strength: "Strength improvements rely on high-quality sets, low fatigue, and frequent practice of major compound lifts. The chosen split spreads compound movements across the week to maximize neural efficiency and load progression."
-    };
+  // Plan building
+  const planBox = document.getElementById('planBox');
+  planBox.innerHTML = ""; // reset
+  let prevNames = []; // avoid repeats
 
-    // EQUIPMENT LOGIC
-    const equipReason = {
-        "full-gym": "Since you have full gym access, the program incorporates high-value compound lifts and machine-based accessory work, maximizing hypertrophy, strength, and movement variety.",
-        "home-dumbbells": "Because you have only dumbbells, the program prioritizes free-weight compound variations that replicate barbell patterns, ensuring you can still train effectively with progressive overload.",
-        "bodyweight": "With only bodyweight, science shows optimizing tempo, higher reps near failure, and unilateral exercises is key. The split emphasizes movement patterns you *can* progressively overload without weights."
-    };
+  // get the split array: for fat-loss special case, if goal==fat and level==beginner and days<=3 we might prefer fullbody to increase NEAT and frequency
+  let splitArr = SPLITS_BY_DAYS[days] ? SPLITS_BY_DAYS[days].slice() : SPLITS_BY_DAYS[3].slice();
+  if(goal==="fat" && level==="beginner" && days<=3){
+    // evidence supports full-body for novices for frequency and muscle preservation
+    splitArr = ["fullbody"].slice(0,1).concat(Array(Math.max(1,days-1)).fill("fullbody"));
+  }
 
-    // SPLIT LOGIC BASED ON DAYS
-    const splitReason = {
-        2: "A 2-day full-body split is chosen because research overwhelmingly shows full-body programs are most effective for low weekly training frequency. This ensures each muscle is still trained twice weekly.",
-        3: "A 3-day Push/Pull/Legs split gives balanced weekly volume and adequate recovery, ideal for this frequency. Each session targets a major movement pattern.",
-        4: "A 4-day Upper/Lower split is evidence-based for distributing weekly volume efficiently. It trains each major muscle group twice per week.",
-        5: "A 5-day modified PPL allows high weekly volume while still giving each muscle at least 2 exposures per week — the sweet spot for hypertrophy.",
-        6: "A 6-day high-frequency PPL is supported by research showing advanced trainees recover faster and benefit from higher volume across more sessions."
-    };
+  // for each day, build exercises
+  splitArr.forEach((splitType, idx) => {
+    const dayNum = idx+1;
+    const section = document.createElement('div');
+    section.className = "day";
+    section.innerHTML = `<h3>Day ${dayNum} — ${splitType.toUpperCase()}</h3>`;
+    // determine groups for this split
+    const groups = SPLIT_TO_GROUPS[splitType] || ["push","pull","legs","core"];
+    // For fat goal, ensure cardio is primary: show 1 primary cardio + 1 resistance circuit or full session depending on duration
+    if(goal==="fat"){
+      // choose cardio from equipment-specific cardio pool
+      const cardioPool = LIB[equipment].cardio;
+      const cardioChoice = cardioPool[Math.floor(Math.random()*cardioPool.length)];
+      const cardioDur = cardioDurationFor(cardioChoice, "fat");
+      // Add cardio block
+      const cardDiv = document.createElement('div');
+      cardDiv.className = "exercise";
+      cardDiv.innerHTML = `<strong>${cardioChoice.name}</strong>
+        <div class="muted">Duration: <strong>${cardioDur}</strong> &mdash; Why: ${cardioChoice.why}</div>`;
+      section.appendChild(cardDiv);
 
-    rationale += `
-        <p><strong>Experience Level:</strong> ${level.charAt(0).toUpperCase() + level.slice(1)}</p>
-        <p>${levelReason[level]}</p>
+      // Add resistance component to preserve muscle
+      // choose 3 compound/accessory exercises (or 4 for longer durations)
+      const resistanceCount = (duration >= 45) ? 4 : 3;
+      // select groups for resistance: prefer fullbody or split groups
+      const resGroups = (splitType==="fullbody") ? ["push","pull","legs"] : groups.slice(0, Math.min(groups.length,3));
+      // gather pools
+      let pool = [];
+      resGroups.forEach(g => {
+        (LIB[equipment][g] || []).forEach(e=>pool.push(e));
+      });
+      const chosen = pickExercisesFromPool(pool, resistanceCount, prevNames);
+      chosen.forEach(ex => {
+        const sr = setsRepsFor(ex, "fat", level);
+        const exDiv = document.createElement('div');
+        exDiv.className = "exercise";
+        exDiv.innerHTML = `<strong>${ex.name}</strong><div class="muted">Sets/Reps: <strong>${sr}</strong> — Why: ${ex.why}</div>`;
+        section.appendChild(exDiv);
+      });
 
-        <p><strong>Goal:</strong> ${
-            goal === "muscle" ? "Build Muscle" :
-            goal === "fat" ? "Lose Fat" : "Gain Strength"
-        }</p>
-        <p>${goalReason[goal]}</p>
+      // add short note about session structure
+      const note = document.createElement('div');
+      note.className = "small";
+      note.style.marginTop = "6px";
+      note.innerHTML = `Session structure suggestion: Start with ${cardioChoice.name} (as above), rest 4–8 min after cardio, then resistance: perform each exercise as listed with 60–90s rest between sets.`;
+      section.appendChild(note);
+    } else {
+      // muscle or strength: build full day of 3-6 exercises depending on split type and level
+      // determine target number of exercises per day
+      let exCount = 4; // default
+      if(splitType==="fullbody") exCount = 4;
+      else if(splitType==="push" || splitType==="pull" || splitType==="legs") exCount = (level==="beginner"?3: (level==="intermediate"?4:5));
+      else if(splitType==="upper"||splitType==="lower") exCount = (level==="beginner"?3: (level==="intermediate"?4:5));
 
-        <p><strong>Equipment:</strong> ${
-            equipment === "full-gym" ? "Full Gym Access" :
-            equipment === "home-dumbbells" ? "Dumbbells at Home" :
-            "Bodyweight Only"
-        }</p>
-        <p>${equipReason[equipment]}</p>
+      // pick exercises from groups while avoiding repeats
+      let pool = [];
+      groups.forEach(g=>{
+        (LIB[equipment][g] || []).forEach(e=>pool.push(e));
+      });
+      // ensure compound priority: sort by presence of keywords in name (barbell, squat, deadlift, press, pull-up)
+      pool.sort((a,b)=>{
+        const compoundScore = (n)=> /Barbell|Squat|Deadlift|Press|Pull-Up|Bench|Overhead|Romanian|Goblet|Deadlift/i.test(n.name) ? 1 : 0;
+        return compoundScore(b) - compoundScore(a);
+      });
 
-        <p><strong>Chosen Split:</strong> ${splitChosen.join(" → ").toUpperCase()}</p>
-        <p>${splitReason[days]}</p>
-    `;
+      const chosen = pickExercisesFromPool(pool, exCount, prevNames);
+      chosen.forEach(ex=>{
+        const sr = setsRepsFor(ex, goal, level);
+        const exDiv = document.createElement('div');
+        exDiv.className = "exercise";
+        exDiv.innerHTML = `<strong>${ex.name}</strong><div class="muted">Sets/Reps: <strong>${sr}</strong> — Why: ${ex.why}</div>`;
+        section.appendChild(exDiv);
+      });
 
-    recDiv.innerHTML += rationale;
-    recDiv.innerHTML += `<hr><h3>Your Weekly Workout Plan</h3>`;
-
-    let prevExercises = [];
-
-    // BUILD THE WORKOUT PLAN
-    for(let i=0; i<days; i++){
-        const splitType = splits[days][i];
-        const muscles = splitMuscles[splitType];
-        const dailyPlan = selectExercises(muscles, equipment, prevExercises);
-
-        recDiv.innerHTML += `<div class="workout-day"><strong>Day ${i+1} – ${splitType.toUpperCase()}</strong></div>`;
-        dailyPlan.forEach(ex => {
-            recDiv.innerHTML += `<div class="exercise">${ex.name}</div>`;
-            recDiv.innerHTML += `<div class="exercise-why">Why: ${ex.why}</div>`;
-        });
+      // For muscle goal: add short hypertrophy note
+      if(goal==="muscle"){
+        const note = document.createElement('div');
+        note.className = "small";
+        note.style.marginTop = "6px";
+        note.innerHTML = `Hypertrophy guidance: target the lower end of the rep range for compound lifts when going heavier and the higher end for isolation/accessory work. Track progression by adding reps or small weight increments weekly.`;
+        section.appendChild(note);
+      }
+      // For strength goal: advice on rep quality
+      if(goal==="strength"){
+        const note = document.createElement('div');
+        note.className = "small";
+        note.style.marginTop = "6px";
+        note.innerHTML = `Strength guidance: keep sets < 6 reps for heavy compounds, prioritize 2–5 high-quality working sets at >85% intensity (RPE 7-9), and ensure full recovery between heavy sets.`;
+        section.appendChild(note);
+      }
     }
 
+    planBox.appendChild(section);
+  });
+
+  // final general tips (evidence-based)
+  const finalTips = document.createElement('div');
+  finalTips.style.marginTop = "10px";
+  finalTips.className = "small";
+  finalTips.innerHTML = `<strong>General Science-Backed Tips:</strong>
+    <ul style="margin:6px 0 0 18px">
+      <li>Progressive overload + consistent frequency drive muscle growth and strength.</li>
+      <li>For fat loss, maintain protein intake and resistance training to preserve lean mass while cardio increases energy expenditure.</li>
+      <li>Beginners should prioritize mastering technique and consistency; advanced users may require more volume and variation.</li>
+    </ul>`;
+  planBox.appendChild(finalTips);
+
+  // scroll result into view
+  document.getElementById('result').scrollIntoView({behavior:"smooth"});
 }
 </script>
-<a href="Hackathon2.html" class="home-arrow" aria-label="Go to Home Page">
-    &#x2190;
-</a>
-
 </body>
 </html>
-
-
-
-
-
-
-
-
